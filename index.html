@@ -4,8 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Quran Mushaf</title>
-  <meta name="description" content="The Madinah Mushaf, page for page and line for line, as an open book: 604 pages in the King Fahd Complex script by Uthman Taha.">
+  <meta name="description" content="Read the Madinah Mushaf as an open book. All 604 pages, line for line as printed, in the King Fahd Complex script by Uthman Taha. Works on phones and offline.">
   <meta name="theme-color" content="#141c18">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mushaf">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Quran Mushaf">
+  <meta property="og:description" content="The Madinah Mushaf as an open book. All 604 pages, line for line as printed.">
+  <meta property="og:image" content="https://bytasim.github.io/quranmushap/docs/spread.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <script>
     // Apply the saved Mushaf style before first paint.
     (function () {
@@ -93,11 +106,12 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
-    <form id="goto" class="goto" autocomplete="off">
-      <label for="goto-page">Go to page</label>
-      <input id="goto-page" type="number" min="1" max="604" inputmode="numeric" placeholder="1 – 604">
+    <form id="goto" class="goto" autocomplete="off" novalidate>
+      <label for="goto-page">Go to</label>
+      <input id="goto-page" type="text" inputmode="decimal" enterkeyhint="go" placeholder="Page 440 or verse 2:255" aria-describedby="goto-hint">
       <button class="btn" type="submit">Open</button>
     </form>
+    <p id="goto-hint" class="goto-hint" role="alert"></p>
     <div class="tabs" role="tablist" aria-label="Index">
       <button class="tab" type="button" role="tab" data-tab="surah" id="tabbtn-surah" aria-controls="tab-surah" aria-selected="true">Surahs</button>
       <button class="tab" type="button" role="tab" data-tab="juz" id="tabbtn-juz" aria-controls="tab-juz" aria-selected="false" tabindex="-1">Juz</button>
@@ -108,7 +122,15 @@
       <input id="search" type="search" placeholder="Search by name or number" aria-label="Search surahs and juz">
     </div>
     <div class="lists">
-      <div id="tab-surah" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-surah"><div id="list-surah" class="list"></div></div>
+      <div id="tab-surah" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-surah">
+        <button id="verse-row" class="row verse-row" type="button" hidden>
+          <span class="num verse-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h12M12 6l6 6-6 6"/></svg></span>
+          <span class="names"><span class="en"></span><span class="sub"></span></span>
+          <span></span>
+          <span class="pg"></span>
+        </button>
+        <div id="list-surah" class="list"></div>
+      </div>
       <div id="tab-juz" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-juz" hidden><div id="list-juz" class="list"></div></div>
       <div id="tab-bookmarks" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-bookmarks" hidden><div id="list-bookmarks" class="list"></div></div>
     </div>
@@ -154,6 +176,12 @@
         <span><b>Page-turn animation</b><small>Turn off for instant page changes.</small></span>
         <button class="switch" type="button" role="switch" data-toggle="anim" aria-checked="true" aria-label="Page-turn animation"></button>
       </div>
+      <div id="offline" class="set-group offline" hidden>
+        <h3>Offline reading</h3>
+        <p id="offline-text" class="offline-text">Save all 604 pages on this device so the Mushaf opens without a connection. This downloads about 37 MB once.</p>
+        <div id="offline-bar" class="progress" hidden><span></span></div>
+        <button id="offline-btn" class="btn btn-wide" type="button">Save for offline reading</button>
+      </div>
       <ul class="keys">
         <li><kbd>←</kbd> <kbd>→</kbd></li><li>Next and previous page</li>
         <li><kbd>G</kbd></li><li>Go to a page</li>
@@ -167,6 +195,19 @@
   </aside>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="guide" class="guide" role="dialog" aria-modal="false" aria-labelledby="guide-title" hidden>
+    <p class="guide-ar" lang="ar">بِسْمِ ٱللَّهِ</p>
+    <h2 id="guide-title">Welcome to the Mushaf</h2>
+    <ul class="guide-list">
+      <li data-input="mouse">Click the page margins or press <kbd>←</kbd> <kbd>→</kbd> to turn pages.</li>
+      <li data-input="touch">Swipe, or tap the edges of the screen, to turn pages.</li>
+      <li data-input="mouse">Click any verse to highlight it.</li>
+      <li data-input="touch">Press and hold a verse to highlight it. Tap the page to show or hide the controls.</li>
+      <li>Open <b>Contents</b> to find a surah, a juz, or a verse such as 2:255.</li>
+    </ul>
+    <button id="guide-ok" class="btn btn-wide" type="button">Start reading</button>
+  </div>
 
   <noscript><p style="padding:2rem;text-align:center">The Mushaf reader needs JavaScript to lay out its pages.</p></noscript>
   <script src="data/mushaf.js"></script>

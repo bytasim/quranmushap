@@ -19,15 +19,19 @@
   --hl: rgba(43, 136, 95, 0.2);
   --skeleton: rgba(28, 26, 21, 0.07);
   --spine: rgba(70, 50, 15, 0.24);
-  --orn-line: #1d5c43;
-  --orn-band: #d3e8d8;
-  --orn-leaf: #3c9167;
-  --orn-flower: #d97ea5;
-  --orn-eye: #7f2f52;
+  --orn-line: #1c5a40;
+  --orn-band: #3e9a6c;
+  --orn-band2: #2f7f57;
+  --orn-vine: #f7f3e1;
+  --orn-leaf: #2b7a52;
+  --orn-flower: #e385ae;
+  --orn-eye: #9a2c5c;
   --orn-paper: #fdf9ee;
-  --orn-strap: rgba(255, 253, 245, 0.92);
-  --orn-ground: #e4f0e3;
-  --orn-girih: rgba(29, 92, 67, 0.32);
+  --orn-cart: #ddf0e3;
+  --orn-accent: #3e9a6c;
+  --orn-pale: #cfe8d9;
+  --orn-ground: #e6f1e6;
+  --orn-girih: rgba(28, 90, 64, 0.3);
   --ribbon: #d8a42b;
 
   --chrome-fg: #efe9da;
@@ -37,6 +41,7 @@
   --accent: #8ed1ab;
   --accent-soft: rgba(142, 209, 171, 0.14);
   --panel-bg: #101713;
+  --chrome-error: #f2a69e;
   color-scheme: dark;
 }
 
@@ -51,15 +56,19 @@
   --marker: #17668c;
   --hl: rgba(35, 140, 190, 0.18);
   --spine: rgba(30, 40, 50, 0.2);
-  --orn-line: #175f84;
-  --orn-band: #cfeaf5;
-  --orn-leaf: #2f93c0;
-  --orn-flower: #ffffff;
-  --orn-eye: #175f84;
+  --orn-line: #0e4865;
+  --orn-band: #2a96c5;
+  --orn-band2: #1f7aa6;
+  --orn-vine: #ffffff;
+  --orn-leaf: #8fcbe4;
+  --orn-flower: #f2f7fa;
+  --orn-eye: #0e4865;
   --orn-paper: #fdfcf7;
-  --orn-strap: rgba(255, 255, 255, 0.95);
-  --orn-ground: #e5f3f9;
-  --orn-girih: rgba(23, 95, 132, 0.3);
+  --orn-cart: #e8f1f6;
+  --orn-accent: #2a96c5;
+  --orn-pale: #d2e6ef;
+  --orn-ground: #e6f3f9;
+  --orn-girih: rgba(14, 72, 101, 0.28);
   --ribbon: #c9333f;
   --chrome-muted: #9fadb8;
   --accent: #8ccbe8;
@@ -78,15 +87,19 @@
   --marker: #992833;
   --hl: rgba(175, 45, 60, 0.15);
   --spine: rgba(80, 40, 20, 0.24);
-  --orn-line: #3a2520;
-  --orn-band: #efd3cb;
-  --orn-leaf: #a3303b;
-  --orn-flower: #c95a63;
-  --orn-eye: #3a2520;
+  --orn-line: #2d1c19;
+  --orn-band: #f3ddd6;
+  --orn-band2: #e7c3ba;
+  --orn-vine: #fcf5ea;
+  --orn-leaf: #a52f3a;
+  --orn-flower: #b3323e;
+  --orn-eye: #2d1c19;
   --orn-paper: #faf2e2;
-  --orn-strap: rgba(250, 242, 226, 0.9);
-  --orn-ground: #f3e1d8;
-  --orn-girih: rgba(153, 40, 51, 0.28);
+  --orn-cart: #f7e0dc;
+  --orn-accent: #b3323e;
+  --orn-pale: #f0cfc9;
+  --orn-ground: #f4e4dd;
+  --orn-girih: rgba(165, 47, 58, 0.26);
   --ribbon: #2f6b4d;
   --chrome-muted: #b4a3a1;
   --accent: #eca5aa;
@@ -107,15 +120,19 @@
   --hl: rgba(207, 169, 94, 0.2);
   --skeleton: rgba(230, 222, 200, 0.06);
   --spine: rgba(0, 0, 0, 0.5);
-  --orn-line: #a98b50;
-  --orn-band: #26282a;
+  --orn-line: #b08f4f;
+  --orn-band: #232528;
+  --orn-band2: #2b2924;
+  --orn-vine: #cfa95e;
   --orn-leaf: #7f6c42;
-  --orn-flower: #c9a45c;
-  --orn-eye: #26282a;
+  --orn-flower: #cfa95e;
+  --orn-eye: #17181b;
   --orn-paper: #1f2124;
-  --orn-strap: rgba(169, 139, 80, 0.55);
-  --orn-ground: #222427;
-  --orn-girih: rgba(201, 164, 92, 0.22);
+  --orn-cart: #1a1c1f;
+  --orn-accent: #cfa95e;
+  --orn-pale: #2a2b2e;
+  --orn-ground: #202225;
+  --orn-girih: rgba(207, 169, 94, 0.2);
   --ribbon: #a8323d;
   --chrome-muted: #9a978f;
   --accent: #d6b46e;
@@ -312,30 +329,30 @@ button, input { font: inherit; color: inherit; }
 
 /* Ornament colours. The symbols live in a hidden <svg>, so they are styled
    through inherited custom properties rather than descendant selectors. */
-.f-band { fill: var(--orn-band); }
-.f-edge { fill: none; stroke: var(--orn-line); stroke-width: 4; }
-.f-rule { fill: none; stroke: var(--orn-line); stroke-width: 1.4; }
-.f-corner { fill: var(--orn-paper); stroke: var(--orn-line); stroke-width: 2; }
-.o-leaf { fill: var(--orn-leaf); stroke: var(--orn-line); stroke-width: 1.4; }
-.o-petal { fill: var(--orn-flower); stroke: var(--orn-line); stroke-width: 1.4; }
-.o-eye { fill: var(--orn-eye); }
-.o-pip { fill: var(--orn-flower); }
-.o-vein { fill: none; stroke: var(--orn-line); stroke-width: 1.2; }
-.o-strap { fill: none; stroke: var(--orn-strap); stroke-width: 3; }
-.o-strapdot { fill: var(--orn-strap); }
+.kg { fill: var(--orn-band); }
+.kgo { fill: var(--orn-band); stroke: var(--orn-line); }
+.kpaperfill { fill: var(--orn-paper); }
+.kframe { fill: none; stroke: var(--orn-line); }
+.ko { fill: none; stroke: var(--orn-line); stroke-linecap: round; stroke-linejoin: round; }
+.kv, .kvo, .kvline { fill: none; stroke: var(--orn-vine); stroke-linecap: round; stroke-linejoin: round; }
+.kstem { fill: none; stroke: var(--orn-line); stroke-linecap: round; }
+.kdot, .kdark { fill: var(--orn-line); }
+.kl { fill: var(--orn-leaf); stroke: var(--orn-line); stroke-linejoin: round; }
+.kf { fill: var(--orn-flower); stroke: var(--orn-line); stroke-linejoin: round; }
+.ki, .ke { fill: var(--orn-eye); }
+.kw { fill: var(--orn-vine); stroke: var(--orn-line); stroke-linejoin: round; }
+.kp { fill: var(--orn-paper); }
+.kc { fill: var(--orn-cart); stroke: var(--orn-line); stroke-linejoin: round; }
+.kinner { fill: none; stroke: var(--orn-accent); }
+.kpale { fill: var(--orn-pale); stroke: var(--orn-line); }
+.kstarfill { fill: var(--orn-band2); stroke: var(--orn-vine); stroke-linejoin: round; }
+.kroundel { fill: var(--orn-cart); stroke: var(--orn-accent); }
+.o-starfill { fill: var(--star-fill, none); stroke: var(--star-line, currentColor); stroke-linejoin: round; }
 .o-girihbg { fill: var(--orn-ground); }
 .o-girih { fill: none; stroke: var(--orn-girih); stroke-width: 2; }
-.o-starfill { fill: var(--star-fill, none); stroke: var(--star-line, currentColor); stroke-width: 3.2; stroke-linejoin: round; }
-.o-starin { fill: none; }
-.b-fill { fill: var(--orn-band); stroke: var(--orn-line); stroke-width: 3; }
-.b-strap { fill: url(#p-strap); }
-.b-cart { fill: var(--orn-paper); stroke: var(--orn-line); stroke-width: 3.4; }
-.b-inner { fill: none; stroke: var(--orn-leaf); stroke-width: 1.6; }
-.b-medal { fill: var(--orn-paper); stroke: var(--orn-line); stroke-width: 3; }
 .op-ground { fill: url(#p-girih); }
-.op-ring { fill: var(--orn-band); }
-.md-star { fill: var(--orn-paper); stroke: var(--orn-line); stroke-width: 2.6; stroke-linejoin: round; }
-.md-in { fill: var(--orn-band); stroke: var(--orn-line); stroke-width: 1.6; }
+.md-star { fill: var(--orn-paper); stroke: var(--orn-line); stroke-linejoin: round; }
+.md-in { fill: var(--orn-band); stroke: var(--orn-line); }
 
 /* Running header: surah on the outer edge, juz by the spine. */
 .rh {
@@ -354,6 +371,18 @@ button, input { font: inherit; color: inherit; }
   transition: opacity 0.35s ease;
 }
 .rh span { font-size: 1.16em; }
+/* Styles whose print sets the running header in small cartouches. */
+.kit-tabs .rh { top: calc(var(--mt) - 1.5em); height: 1.3em; }
+.kit-tabs .rh span {
+  font-size: 0.98em;
+  padding: 0.14em 0.1em 0.2em;
+  border: 0 solid transparent;
+  border-width: 0 0.6em;
+  border-image-source: var(--tab-img);
+  border-image-slice: 0 46 fill;
+  border-image-width: 0 0.6em;
+  border-image-repeat: stretch;
+}
 
 .tx {
   position: absolute;
@@ -389,6 +418,30 @@ button, input { font: inherit; color: inherit; }
 }
 .ln-bsm { justify-content: center; }
 .ln-bsm > span { font-family: "QCF4_Hafs_01"; }
+/* The basmala glyph rides high in its line box; centre it between the
+   surah banner above and the first line of the surah below. */
+.ln-bsm:not(.ln-open) > span { font-size: 0.92em; line-height: 1; transform: translateY(0.47em); }
+
+/* Order and verse-count roundels on the surah banner (Rose and Night). */
+.ln > span.bi {
+  position: absolute;
+  top: 0.41em;
+  width: 0.8em;
+  height: 0.8em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ar-ui);
+  line-height: 1.05;
+  color: var(--ink);
+  direction: rtl;
+}
+.bi span { font-size: 0.2em; }
+.bi b { font-size: 0.3em; font-weight: 700; color: var(--marker); }
+.bi-r { left: calc(var(--bl) + var(--bw) / 2 + 3.06em - 0.4em); }
+.bi-l { left: calc(var(--bl) + var(--bw) / 2 - 3.06em - 0.4em); }
+:root:not(.kit-info) .bi { display: none; }
 
 .tint-markers .ae,
 .tint-markers .rq { color: var(--marker); }
@@ -536,6 +589,18 @@ body.idle .book[data-hover="prev"] { cursor: pointer; }
 .where-line { display: flex; align-items: baseline; justify-content: center; gap: 10px; white-space: nowrap; }
 .where-ar { font-family: var(--ar-ui); font-size: 22px; line-height: 1.1; }
 .where-en { font-size: 15px; font-weight: 500; }
+.where-meta span + span::before,
+.sub span + span::before,
+.bubble span::before {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 0.8em;
+  margin: 0 0.6em;
+  vertical-align: -0.08em;
+  background: currentColor;
+  opacity: 0.35;
+}
 .where-meta {
   font-size: 12.5px;
   color: var(--chrome-muted);
@@ -609,6 +674,7 @@ body.idle .book[data-hover="prev"] { cursor: pointer; }
   background: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
+.bubble b { font-weight: 700; font-variant-numeric: tabular-nums; }
 .bubble {
   --pos: 0;
   position: absolute;
@@ -697,6 +763,11 @@ body.idle .book[data-hover="prev"] { cursor: pointer; }
   font-variant-numeric: tabular-nums;
 }
 .goto input { width: 96px; flex: 1; }
+.goto input[aria-invalid="true"] { border-color: var(--chrome-error); }
+.goto-hint { margin: -4px 20px 10px; font-size: 12.5px; color: var(--chrome-error); }
+.goto-hint:empty { display: none; }
+.verse-row { margin-bottom: 4px; background: var(--accent-soft); }
+.verse-icon svg { position: static; width: 22px; height: 22px; opacity: 1; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .goto input:focus, .search input:focus { outline: none; border-color: var(--accent); }
 .btn {
   height: 38px;
@@ -910,6 +981,35 @@ kbd {
   text-align: center;
   color: var(--chrome-fg);
 }
+.offline-text { margin: 0 0 10px; font-size: 13.5px; color: var(--chrome-muted); }
+.btn-wide { width: 100%; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.progress { height: 6px; margin: 0 0 12px; border-radius: 3px; background: var(--chrome-line); overflow: hidden; }
+.progress span { display: block; width: 0; height: 100%; background: var(--accent); transition: width 0.3s ease; }
+
+.guide {
+  position: fixed;
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  width: min(440px, calc(100vw - 32px));
+  padding: 22px 22px 18px;
+  border-radius: 18px;
+  background: var(--panel-bg);
+  border: 1px solid var(--chrome-line);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  color: var(--chrome-fg);
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.guide.open { opacity: 1; transform: translate(-50%, 0); }
+.guide-ar { margin: 0; font-family: var(--ar-ui); font-size: 24px; line-height: 1.4; color: var(--accent); text-align: center; }
+.guide h2 { margin: 2px 0 12px; font-size: 20px; font-weight: 500; text-align: center; text-wrap: balance; }
+.guide-list { margin: 0 0 16px; padding: 0 0 0 18px; display: grid; gap: 8px; font-size: 14.5px; color: var(--chrome-muted); }
+.guide-list b { color: var(--chrome-fg); font-weight: 500; }
+.guide kbd { min-width: 20px; padding: 0 5px; }
+
 .credit { margin: 18px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--chrome-muted); }
 .credit span { font-family: var(--ar-ui); font-size: 15px; color: var(--chrome-fg); }
 

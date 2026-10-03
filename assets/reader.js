@@ -86,6 +86,43 @@
     });
   })();
 
+  // Page on which each ayah begins, keyed "surah:ayah".
+  var versePage = {};
+  (function () {
+    D.pages.forEach(function (p, i) {
+      var s = p[1], a = p[2];
+      p[5].forEach(function (l) {
+        if (l[0] === 0) { s = l[1]; a = 1; return; }
+        if (l[0] === 1) return;
+        var types = l[1];
+        for (var j = 0; j < types.length; j++) {
+          if (types[j] === 'q') continue;
+          var key = s + ':' + a;
+          if (!versePage[key]) versePage[key] = i + 1;
+          if (types[j] === 'e') a++;
+        }
+      });
+    });
+  })();
+
+  // Reads "440" as a page, and "2:255", "2 255" or "2.255" as surah and ayah.
+  function parseTarget(text) {
+    var t = String(text || '').trim().replace(/[٠-٩]/g, function (d) { return AR_DIGITS.indexOf(d); });
+    var m = /^(\d{1,3})\s*[:.\s]\s*(\d{1,3})$/.exec(t);
+    if (m) {
+      var key = (+m[1]) + ':' + (+m[2]);
+      return versePage[key] ? { page: versePage[key], verse: key } : null;
+    }
+    m = /^\d{1,3}$/.exec(t);
+    if (m && +t >= 1 && +t <= TOTAL) return { page: +t };
+    return null;
+  }
+
+  function goToTarget(target) {
+    go(target.page);
+    if (target.verse) selectAyah(target.verse, true);
+  }
+
   /* ---------- Fonts ---------- */
 
   var fontJobs = {};
@@ -139,6 +176,14 @@
 
   /* ---------- Page rendering ---------- */
 
+  function infoRoundel(cls, label, n) {
+    var r = el('span', cls);
+    r.setAttribute('lang', 'ar');
+    r.appendChild(el('span', null, label));
+    r.appendChild(el('b', null, ar(n)));
+    return r;
+  }
+
   function renderPage(n, gk) {
     var g = GEOMS[gk];
     var p = D.pages[n - 1];
@@ -171,7 +216,12 @@
         s = l[1];
         a = 1;
         ln.classList.add('ln-sura');
-        if (!opening) ln.appendChild(svgUse('banner-' + gk, g.bw, 150, 'banner'));
+        if (!opening) {
+          ln.appendChild(svgUse('banner-' + gk, g.bw, 150, 'banner'));
+          // Order and verse count, shown in the roundels of styles that have them.
+          ln.appendChild(infoRoundel('bi bi-r', 'ترتيبها', s));
+          ln.appendChild(infoRoundel('bi bi-l', 'آياتها', chapter(s)[3]));
+        }
         ln.appendChild(el('span', 'sn', String.fromCharCode(0xF100 + s - 1)));
       } else if (l[0] === 1) {
         ln.classList.add('ln-bsm');
@@ -215,7 +265,7 @@
       if (m[1] === 'r') {
         var hizb = Math.floor(m[2] / 4) + 1, q = m[2] % 4;
         label = q === 0 ? ar(hizb) : ['', '¼', '½', '¾'][q];
-        title = q === 0 ? 'Hizb ' + hizb + (hizb % 2 ? ' · Juz ' + ((hizb + 1) / 2) : '') : ['', '¼', '½', '¾'][q] + ' Hizb ' + hizb;
+        title = q === 0 ? 'Hizb ' + hizb + (hizb % 2 ? ', start of juz ' + ((hizb + 1) / 2) : '') : ['', 'Quarter', 'Half', 'Three quarters'][q] + ' of hizb ' + hizb;
         if (q === 0) mk.classList.add('mk-hizb');
       } else {
         label = '۩';
@@ -278,7 +328,7 @@
   }
   function writeStore() {
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ page: current, settings: settings, bookmarks: bookmarks }));
+      localStorage.setItem(STORE_KEY, JSON.stringify({ page: current, settings: settings, bookmarks: bookmarks, guided: guided }));
     } catch (e) { /* storage unavailable: settings last for this visit only */ }
   }
 
@@ -300,12 +350,18 @@
     return m ? clampPage(m[1]) : 0;
   }
   var current = hashPage() || clampPage(saved.page || 1);
+  var guided = !!saved.guided;
 
   function isBookmarked(n) { return bookmarks.some(function (b) { return b.p === n; }); }
 
+  var builtTheme = null;
   function applySettings() {
     var root = document.documentElement;
     root.dataset.mushaf = settings.theme;
+    if (builtTheme !== settings.theme) {
+      window.MushafOrnaments.build(GEOMS, settings.theme);
+      builtTheme = settings.theme;
+    }
     root.classList.toggle('tint-markers', settings.markers === 'tint');
     root.classList.toggle('jalalah', !!settings.jalalah);
     $all('[data-set]').forEach(function (b) {
@@ -519,7 +575,7 @@
   function pagesLabel() {
     if (mode === 'spread') {
       var pr = spreadPages(spreadOf(current));
-      return 'Pages ' + pr[0] + '–' + pr[1];
+      return 'Pages ' + pr[0] + ' and ' + pr[1];
     }
     return 'Page ' + current;
   }
@@ -530,7 +586,7 @@
     whereAr.textContent = c[0];
     whereEn.textContent = s + '. ' + c[1];
     var hizb = Math.floor(pageRub[current] / 4) + 1;
-    whereMeta.textContent = 'Juz ' + D.pages[current - 1][3] + ' · Hizb ' + hizb + ' · ' + pagesLabel();
+    whereMeta.replaceChildren(el('span', null, 'Juz ' + D.pages[current - 1][3]), el('span', null, 'Hizb ' + hizb), el('span', null, pagesLabel()));
     slider.value = current;
     sliderOut.textContent = current;
     var marked = isBookmarked(current);
@@ -541,7 +597,7 @@
     if (row) row.classList.add('is-current');
     var jrow = $('#list-juz .row[data-juz="' + D.pages[current - 1][3] + '"]');
     if (jrow) jrow.classList.add('is-current');
-    document.title = c[1] + ' · Page ' + current + ' — Quran Mushaf';
+    document.title = 'Quran Mushaf, ' + c[1] + ', page ' + current;
   }
 
   var toastTimer;
@@ -574,14 +630,14 @@
     $all('.ln span.sel').forEach(function (s) { s.classList.remove('sel'); });
     selected = null;
   }
-  function selectAyah(key) {
-    var same = key === selected;
+  function selectAyah(key, keep) {
+    var same = key === selected && !keep;
     clearAyah();
     if (same) return;
     selected = key;
     $all('#book [data-v="' + key + '"]').forEach(function (s) { s.classList.add('sel'); });
     var parts = key.split(':');
-    toast(suraName(+parts[0]) + ' · Ayah ' + parts[1]);
+    toast(suraName(+parts[0]) + ', ayah ' + parts[1]);
   }
 
   /* Panels */
@@ -610,6 +666,12 @@
   }
   function panelOpen() { return !drawer.hidden || !settingsPanel.hidden; }
 
+  function subLine(parts) {
+    var sub = el('span', 'sub');
+    parts.forEach(function (t) { sub.appendChild(el('span', null, t)); });
+    return sub;
+  }
+
   /* Index lists */
   function buildLists() {
     var ls = $('#list-surah');
@@ -627,7 +689,7 @@
       num.appendChild(el('span', null, s));
       var names = el('span', 'names');
       names.appendChild(el('span', 'en', c[1]));
-      names.appendChild(el('span', 'sub', (c[4] === 'm' ? 'Meccan' : 'Medinan') + ' · ' + c[3] + ' āyāt'));
+      names.appendChild(subLine([c[4] === 'm' ? 'Meccan' : 'Medinan', c[3] + ' āyāt']));
       b.appendChild(num);
       b.appendChild(names);
       b.appendChild(el('span', 'ar-glyph', String.fromCharCode(0xF100 + i)));
@@ -679,7 +741,7 @@
       var s = pageSura[bm.p];
       names.appendChild(el('span', 'en', suraName(s)));
       var when = new Date(bm.t);
-      names.appendChild(el('span', 'sub', 'Juz ' + D.pages[bm.p - 1][3] + ' · saved ' + when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })));
+      names.appendChild(subLine(['Page ' + bm.p, 'Juz ' + D.pages[bm.p - 1][3], 'Saved ' + when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })]));
       b.appendChild(num);
       b.appendChild(names);
       b.appendChild(el('span', 'ar-glyph', String.fromCharCode(0xF100 + s - 1)));
@@ -716,7 +778,29 @@
   }
 
   function filterLists() {
-    var q = $('#search').value.trim().toLowerCase().replace(/[-'ʿʾ’]/g, '');
+    var raw = $('#search').value;
+    var target = parseTarget(raw);
+    var vr = $('#verse-row');
+    if (target && target.verse) {
+      var parts = target.verse.split(':');
+      vr.dataset.page = target.page;
+      vr.dataset.verse = target.verse;
+      $('.en', vr).textContent = suraName(+parts[0]) + ', ayah ' + parts[1];
+      $('.sub', vr).replaceChildren(el('span', null, 'Open and highlight this verse'));
+      $('.pg', vr).textContent = target.page;
+      vr.hidden = false;
+    } else {
+      vr.hidden = true;
+    }
+    var q = raw.trim().toLowerCase().replace(/[-'ʿʾ’]/g, '');
+    if (target && target.verse) {
+      // A verse reference: show the verse and its surah, nothing else.
+      var sura = target.verse.split(':')[0];
+      $all('#list-surah .row').forEach(function (r) { r.hidden = r.dataset.sura !== sura; });
+      $all('#list-juz .row').forEach(function (r) { r.hidden = true; });
+      $('.lists').scrollTop = 0;
+      return;
+    }
     $all('#list-surah .row').forEach(function (r) { r.hidden = !!q && r.dataset.search.indexOf(q) < 0; });
     $all('#list-juz .row').forEach(function (r) {
       r.hidden = !!q && ('juz ' + r.dataset.juz + ' ' + r.textContent.toLowerCase()).indexOf(q) < 0;
@@ -753,15 +837,27 @@
       var row = e.target.closest('.row');
       if (!row) return;
       closePanels();
-      go(+row.dataset.page);
+      if (row.dataset.verse) goToTarget({ page: +row.dataset.page, verse: row.dataset.verse });
+      else go(+row.dataset.page);
     });
     $('#goto').addEventListener('submit', function (e) {
       e.preventDefault();
-      var v = $('#goto-page').value;
-      if (!v) return;
+      var input = $('#goto-page');
+      var target = parseTarget(input.value);
+      if (!target) {
+        input.setAttribute('aria-invalid', 'true');
+        $('#goto-hint').textContent = 'Enter a page from 1 to 604, or a verse such as 2:255.';
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      $('#goto-hint').textContent = '';
       closePanels();
-      go(clampPage(v));
-      $('#goto-page').value = '';
+      goToTarget(target);
+      input.value = '';
+    });
+    $('#goto-page').addEventListener('input', function () {
+      this.removeAttribute('aria-invalid');
+      $('#goto-hint').textContent = '';
     });
 
     $all('[data-set]').forEach(function (b) {
@@ -783,7 +879,7 @@
     slider.addEventListener('input', function () {
       var v = +slider.value;
       sliderOut.textContent = v;
-      bubble.textContent = suraName(pageSura[v]) + ' · ' + v;
+      bubble.replaceChildren(el('b', null, v), el('span', null, suraName(pageSura[v])));
       bubble.hidden = false;
       var pct = (v - 1) / (TOTAL - 1);
       bubble.style.setProperty('--pos', pct);
@@ -939,9 +1035,97 @@
     return function () { clearTimeout(t); t = setTimeout(fn, ms); };
   }
 
+  /* ---------- First visit ---------- */
+
+  function showGuide() {
+    if (guided) return;
+    var guide = $('#guide');
+    var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
+    $all('[data-input]', guide).forEach(function (li) { li.hidden = li.dataset.input !== (touch ? 'touch' : 'mouse'); });
+    guide.hidden = false;
+    requestAnimationFrame(function () { guide.classList.add('open'); });
+    function done() {
+      guided = true;
+      writeStore();
+      guide.classList.remove('open');
+      setTimeout(function () { guide.hidden = true; }, 300);
+    }
+    $('#guide-ok').addEventListener('click', done, { once: true });
+  }
+
+  /* ---------- Offline ---------- */
+
+  var FONT_CACHE = 'mushaf-fonts-v1';
+  var ALL_FONTS = ['QCF4_QBSML'];
+  for (var fi = 1; fi <= 47; fi++) ALL_FONTS.push('QCF4_Hafs_' + (fi < 10 ? '0' : '') + fi);
+
+  function setupOffline() {
+    var canWork = 'serviceWorker' in navigator && window.caches &&
+      (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    if (!canWork) return;
+    navigator.serviceWorker.register('sw.js').catch(function () { /* offline reading stays unavailable */ });
+    var box = $('#offline'), btn = $('#offline-btn'), text = $('#offline-text'), bar = $('#offline-bar');
+    box.hidden = false;
+
+    function cachedCount() {
+      return caches.open(FONT_CACHE).then(function (cache) {
+        return cache.keys().then(function (keys) {
+          var names = {};
+          keys.forEach(function (k) {
+            ALL_FONTS.forEach(function (n) { if (k.url.indexOf(fontFile(n)) >= 0) names[n] = true; });
+          });
+          return Object.keys(names).length;
+        });
+      }).catch(function () { return 0; });
+    }
+    function showDone() {
+      text.textContent = 'All 604 pages are saved on this device. The Mushaf opens without a connection.';
+      btn.textContent = 'Saved for offline reading';
+      btn.disabled = true;
+      bar.hidden = true;
+    }
+    cachedCount().then(function (n) { if (n >= ALL_FONTS.length) showDone(); });
+
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      bar.hidden = false;
+      var done = 0;
+      caches.open(FONT_CACHE).then(function (cache) {
+        var queue = ALL_FONTS.slice();
+        function saveOne(name) {
+          var list = bases.filter(function (b) { return /^https?:/.test(b) || location.protocol !== 'file:'; });
+          return (function attempt(i) {
+            if (i >= list.length) return Promise.reject(new Error(name));
+            var url = new URL(list[i] + fontFile(name), location.href).href;
+            return cache.match(url, { ignoreVary: true }).then(function (hit) {
+              if (hit) return true;
+              return fetch(url, { mode: 'cors' }).then(function (res) {
+                if (!res.ok) throw new Error(res.status);
+                return cache.put(url, res);
+              });
+            }).catch(function () { return attempt(i + 1); });
+          })(0);
+        }
+        function worker() {
+          var name = queue.shift();
+          if (!name) return Promise.resolve();
+          return saveOne(name).then(function () {
+            done++;
+            bar.firstChild.style.width = (done / ALL_FONTS.length * 100) + '%';
+            text.textContent = 'Saving pages for offline reading: ' + Math.round(done / ALL_FONTS.length * 100) + '%';
+          }).then(worker);
+        }
+        return Promise.all([worker(), worker(), worker()]);
+      }).then(showDone, function () {
+        btn.disabled = false;
+        btn.textContent = 'Try again';
+        text.textContent = 'Some pages could not be saved. Check your connection and try again.';
+      });
+    });
+  }
+
   /* ---------- Boot ---------- */
 
-  window.MushafOrnaments.build(GEOMS);
   buildLists();
   renderBookmarks();
   applySettings();
@@ -951,6 +1135,8 @@
   updateChrome();
   prefetch(current);
   if (window.matchMedia && window.matchMedia('(hover: hover)').matches) wake();
+  setupOffline();
+  setTimeout(showGuide, 900);
   try { history.replaceState(null, '', '#' + current); } catch (e) { /* ignore */ }
 
   // Exposed for debugging and automated checks.

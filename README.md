@@ -13,20 +13,24 @@ No translation, no commentary, only the Mushaf.
 - **Printed layout.** Every line breaks exactly where it does in the 1441 AH Madinah print.
   Justified lines, the centred lines at the ends of short surahs, surah banners and the
   bismillah all sit on the same lines as on paper.
-- **Ornament.** The illuminated page frame, the banner above each surah, the medallion
-  around Al-Fatihah and the opening of Al-Baqarah, the page number cartouche, and margin
-  medallions at every quarter of a hizb and at each verse of prostration.
-- **Running headers.** The surah name on the outer edge and the juz on the edge by the
-  spine, as in the print.
+- **Four Mushaf styles, each with its own ornament.**
+  Madinah has a cream vine with pink tulips on a green border, Azure a white interlaced chain
+  with palmette banners and cartouche headers, Rose dark scrolls with red half palmettes and
+  surah banners showing the order and verse count, and Night gold strapwork on charcoal.
+- **Ornament.** The illuminated frame, the banner above each surah, the medallion around
+  Al-Fatihah and the opening of Al-Baqarah, the page number cartouche, and margin medallions
+  at every quarter of a hizb and at each verse of prostration.
 - **A real book.** Right-to-left two-page spreads with a 3D page turn, page edges that
   thicken as you read, and a single page on phones.
-- **Mushaf styles.** Madinah (green floral), Azure (blue), Rose (red and black) and Night.
-  Verse markers can be coloured or plain ink, and the Name of Allah can be shown in red.
-- **Finding your place.** Index of the 114 surahs and 30 juz with search, go to any page,
-  bookmarks shown as a ribbon on the page, and the reader reopens where you stopped.
-  Tap or click an ayah to highlight it.
+- **Finding your place.** Index of the 114 surahs and 30 juz with search, go to any page or
+  verse (type `440` or `2:255`), bookmarks shown as a ribbon on the page, and the reader
+  reopens where you stopped. Click a verse, or press and hold it on a phone, to highlight it.
+- **Install and read offline.** It installs as an app on phones and computers, and one tap
+  in Settings saves all 604 pages on the device.
 
 <br clear="right">
+
+![The four Mushaf styles: Madinah, Azure, Rose and Night](docs/styles.jpg)
 
 ## Reading
 
@@ -35,7 +39,7 @@ No translation, no commentary, only the Mushaf.
 | Next page | `←`, `Space`, `Page Down` | Click the left margin, or swipe right |
 | Previous page | `→`, `Shift+Space`, `Page Up` | Click the right margin, or swipe left |
 | Contents | `I` | ☰ button |
-| Go to a page | `G` | Contents → Go to page, or the slider |
+| Go to a page or verse | `G` | Contents, then Go to (`440` or `2:255`), or the slider |
 | Bookmark | `B` | Ribbon button |
 | Next Mushaf style | `T` | Settings button |
 | Full screen | `F` | Full screen button |
@@ -71,12 +75,15 @@ sh scripts/fetch-fonts.sh
 ## How it is built
 
 ```
-index.html           page shell, toolbar, contents and settings panels
-assets/mushaf.css    page geometry, ornament colours, the four Mushaf styles
-assets/ornaments.js  SVG frame, surah banner, opening medallion, cartouches
-assets/reader.js     page rendering, page turns, navigation, bookmarks, settings
-data/mushaf.js       generated: glyph layout of all 604 pages (486 KB)
-scripts/             data builder and font downloader
+index.html            page shell, toolbar, contents and settings panels
+assets/mushaf.css     page geometry, colours of the four Mushaf styles
+assets/ornaments.js   the ornament kit of each style: border, banner, cartouches
+assets/reader.js      page rendering, page turns, navigation, bookmarks, settings
+assets/icons/         app icons
+data/mushaf.js        generated: glyph layout of all 604 pages (486 KB)
+sw.js                 service worker for offline reading
+manifest.webmanifest  install as an app
+scripts/              data builder and font downloader
 ```
 
 Each line of a page is a row of glyphs from the page's QCF4 font. The builder measures
