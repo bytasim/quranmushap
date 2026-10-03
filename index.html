@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-mushaf="madinah">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quran Mushaf</title>
+  <meta name="description" content="The Madinah Mushaf, page for page and line for line, as an open book: 604 pages in the King Fahd Complex script by Uthman Taha.">
+  <meta name="theme-color" content="#141c18">
+  <script>
+    // Apply the saved Mushaf style before first paint.
+    (function () {
+      try {
+        var s = JSON.parse(localStorage.getItem('quran-mushaf.v1') || '{}').settings;
+        var t = s && s.theme;
+        if (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) t = 'night';
+        if (t) document.documentElement.setAttribute('data-mushaf', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Amiri:wght@400;700&display=swap">
+  <link rel="stylesheet" href="assets/mushaf.css">
+</head>
+<body>
+  <header class="bar top">
+    <div class="bar-side">
+      <button id="btn-index" class="icon-btn" type="button" aria-label="Contents" title="Contents (I)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="1.1"/><circle cx="4.6" cy="12" r="1.1"/><circle cx="4.6" cy="17.5" r="1.1"/></svg>
+      </button>
+      <span class="brand"><span class="brand-ar" lang="ar">المصحف</span><span class="brand-en">Mushaf</span></span>
+    </div>
+    <div class="where">
+      <div class="where-line">
+        <span id="where-ar" class="where-ar" lang="ar" dir="rtl"></span>
+        <span id="where-en" class="where-en"></span>
+      </div>
+      <div id="where-meta" class="where-meta"></div>
+    </div>
+    <div class="bar-side end">
+      <button id="btn-bookmark" class="icon-btn" type="button" aria-pressed="false" aria-label="Bookmark this page" title="Bookmark this page (B)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10v17l-5-3.8-5 3.8z"/></svg>
+      </button>
+      <button id="btn-settings" class="icon-btn" type="button" aria-label="Reading settings" title="Reading settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg>
+      </button>
+      <button id="btn-full" class="icon-btn hide-narrow" type="button" aria-label="Full screen" title="Full screen (F)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="stage" class="stage">
+    <div id="book" class="book spread" data-hover="">
+      <div class="stack stack-r" aria-hidden="true"></div>
+      <div class="stack stack-l" aria-hidden="true"></div>
+      <div class="sheet sheet-r"></div>
+      <div class="sheet sheet-l"></div>
+      <div class="spine" aria-hidden="true"></div>
+      <div class="cast cast-r" aria-hidden="true"></div>
+      <div class="cast cast-l" aria-hidden="true"></div>
+      <div class="leaf" hidden><div class="face front"></div><div class="face back"></div></div>
+      <div class="curl curl-next" aria-hidden="true"></div>
+      <div class="curl curl-prev" aria-hidden="true"></div>
+    </div>
+  </main>
+
+  <footer class="bar bottom">
+    <button id="btn-next" class="icon-btn" type="button" aria-label="Next page" title="Next page (←)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
+    </button>
+    <div class="scrub">
+      <span class="scrub-end hide-narrow">604</span>
+      <div class="track">
+        <input id="slider" type="range" min="1" max="604" value="1" step="1" dir="rtl" aria-label="Page">
+        <output id="bubble" class="bubble" hidden></output>
+      </div>
+      <span class="scrub-end hide-narrow">1</span>
+      <output id="slider-out" class="page-pill" aria-hidden="true">1</output>
+    </div>
+    <button id="btn-prev" class="icon-btn" type="button" aria-label="Previous page" title="Previous page (→)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg>
+    </button>
+  </footer>
+
+  <div id="scrim" class="scrim" hidden></div>
+
+  <aside id="drawer" class="panel" hidden aria-label="Contents" tabindex="-1">
+    <div class="panel-head">
+      <div class="panel-title"><span class="t-ar" lang="ar">الفهرس</span><span class="t-en">Contents</span></div>
+      <button class="icon-btn" type="button" data-close aria-label="Close contents">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <form id="goto" class="goto" autocomplete="off">
+      <label for="goto-page">Go to page</label>
+      <input id="goto-page" type="number" min="1" max="604" inputmode="numeric" placeholder="1 – 604">
+      <button class="btn" type="submit">Open</button>
+    </form>
+    <div class="tabs" role="tablist" aria-label="Index">
+      <button class="tab" type="button" role="tab" data-tab="surah" id="tabbtn-surah" aria-controls="tab-surah" aria-selected="true">Surahs</button>
+      <button class="tab" type="button" role="tab" data-tab="juz" id="tabbtn-juz" aria-controls="tab-juz" aria-selected="false" tabindex="-1">Juz</button>
+      <button class="tab" type="button" role="tab" data-tab="bookmarks" id="tabbtn-bookmarks" aria-controls="tab-bookmarks" aria-selected="false" tabindex="-1">Bookmarks<span id="bm-count" class="count"></span></button>
+    </div>
+    <div id="search-wrap" class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input id="search" type="search" placeholder="Search by name or number" aria-label="Search surahs and juz">
+    </div>
+    <div class="lists">
+      <div id="tab-surah" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-surah"><div id="list-surah" class="list"></div></div>
+      <div id="tab-juz" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-juz" hidden><div id="list-juz" class="list"></div></div>
+      <div id="tab-bookmarks" class="tabpanel" role="tabpanel" aria-labelledby="tabbtn-bookmarks" hidden><div id="list-bookmarks" class="list"></div></div>
+    </div>
+  </aside>
+
+  <aside id="settings" class="panel" hidden aria-label="Reading settings" tabindex="-1">
+    <div class="panel-head">
+      <div class="panel-title"><span class="t-en">Reading settings</span></div>
+      <button class="icon-btn" type="button" data-close aria-label="Close settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="settings-body">
+      <div class="set-group">
+        <h3>Mushaf style</h3>
+        <div class="swatches">
+          <button class="swatch" type="button" data-set="theme" data-value="madinah"><span class="sw-page sw-madinah"></span>Madinah</button>
+          <button class="swatch" type="button" data-set="theme" data-value="azure"><span class="sw-page sw-azure"></span>Azure</button>
+          <button class="swatch" type="button" data-set="theme" data-value="rose"><span class="sw-page sw-rose"></span>Rose</button>
+          <button class="swatch" type="button" data-set="theme" data-value="night"><span class="sw-page sw-night"></span>Night</button>
+        </div>
+      </div>
+      <div class="set-group">
+        <h3>Pages</h3>
+        <div class="seg">
+          <button type="button" data-set="view" data-value="auto">Auto</button>
+          <button type="button" data-set="view" data-value="one">One page</button>
+          <button type="button" data-set="view" data-value="two">Two pages</button>
+        </div>
+      </div>
+      <div class="set-group">
+        <h3>Verse markers</h3>
+        <div class="seg">
+          <button type="button" data-set="markers" data-value="tint">Coloured</button>
+          <button type="button" data-set="markers" data-value="ink">Ink</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <span><b>Name of Allah in red</b><small>Marks every occurrence of the Name, as many printed Mushafs do.</small></span>
+        <button class="switch" type="button" role="switch" data-toggle="jalalah" aria-checked="false" aria-label="Name of Allah in red"></button>
+      </div>
+      <div class="set-row">
+        <span><b>Page-turn animation</b><small>Turn off for instant page changes.</small></span>
+        <button class="switch" type="button" role="switch" data-toggle="anim" aria-checked="true" aria-label="Page-turn animation"></button>
+      </div>
+      <ul class="keys">
+        <li><kbd>←</kbd> <kbd>→</kbd></li><li>Next and previous page</li>
+        <li><kbd>G</kbd></li><li>Go to a page</li>
+        <li><kbd>I</kbd></li><li>Contents</li>
+        <li><kbd>B</kbd></li><li>Bookmark the page</li>
+        <li><kbd>T</kbd></li><li>Next Mushaf style</li>
+        <li><kbd>F</kbd></li><li>Full screen</li>
+      </ul>
+      <p class="credit"><span lang="ar">مصحف المدينة النبوية</span><br>Script of the Madinah Mushaf (1441 AH), written by Uthman Taha and published by the King Fahd Complex for the Printing of the Holy Qur'an. Page layout follows the 15-line, 604-page print.</p>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p style="padding:2rem;text-align:center">The Mushaf reader needs JavaScript to lay out its pages.</p></noscript>
+  <script src="data/mushaf.js"></script>
+  <script src="assets/ornaments.js"></script>
+  <script src="assets/reader.js"></script>
+</body>
+</html>
