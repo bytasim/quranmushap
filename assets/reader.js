@@ -879,6 +879,7 @@
     }, { passive: false });
 
     document.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') wake(); });
+    document.addEventListener('focusin', function (e) { if (e.target.closest && e.target.closest('.bar')) wake(); });
     window.addEventListener('resize', debounce(layout, 120));
     window.addEventListener('hashchange', function () {
       var h = hashPage();
@@ -918,7 +919,8 @@
     document.body.classList.remove('idle');
     clearTimeout(idleTimer);
     idleTimer = setTimeout(function () {
-      if (!panelOpen() && !document.querySelector('.bar:hover') && !bubble.offsetParent) document.body.classList.add('idle');
+      var focusInBar = document.activeElement && document.activeElement.closest && document.activeElement.closest('.bar');
+      if (!panelOpen() && !focusInBar && !document.querySelector('.bar:hover') && !bubble.offsetParent) document.body.classList.add('idle');
     }, 3200);
   }
 
